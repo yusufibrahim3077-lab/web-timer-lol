@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Timer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .timer-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 320px;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        #display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #222;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        #statusMessage {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #dc3545;
+            height: 24px;
+            margin-bottom: 10px;
+        }
+        .control-buttons, .modifier-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .start { background-color: #28a745; color: white; width: 100px; }
+        .pause { background-color: #ffc107; color: #333; width: 100px; }
+        .reset { background-color: #dc3545; color: white; }
+        .modifier-section h3 {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .add { background-color: #e3f2fd; color: #0d47a1; }
+        .deduct { background-color: #ffebee; color: #b71c1c; }
+        .btn:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <h1>Web Timer</h1>
+        <div id="display">00:00</div>
+        <div id="statusMessage"></div>
+
+        <div class="control-buttons">
+            <button id="startPauseBtn" class="btn start">Start</button>
+            <button id="resetBtn" class="btn reset">Reset</button>
+        </div>
+
+        <div class="modifier-section">
+            <h3>Adjust Time</h3>
+            <div class="modifier-row">
+                <button id="add10" class="btn add">+10s</button>
+                <button id="add30" class="btn add">+30s</button>
+                <button id="add60" class="btn add">+1m</button>
+            </div>
+            <div class="modifier-row">
+                <button id="sub10" class="btn deduct">-10s</button>
+                <button id="sub30" class="btn deduct">-30s</button>
+                <button id="sub60" class="btn deduct">-1m</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalSeconds = 0;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const display = document.getElementById('display');
+        const startPauseBtn = document.getElementById('startPauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function updateDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            display.textContent = ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')};
+        }
+
+        function tick() {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                updateDisplay();
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                startPauseBtn.textContent = 'Start';
+                startPauseBtn.className = 'btn start';
+                statusMessage.textContent = "Time's up!";
+                alert("Time's up!");
+            }
+        }
+
+        function toggleTimer() {
+            statusMessage.textContent = "";
+            if (isRunning) {
+                clearInterval(timerInterval);
+                startPauseBtn.textContent = 'Start';
+                startPauseBtn.className = 'btn start';
+            } else {
+                if (totalSeconds === 0) {
+                    statusMessage.textContent = "Please add some time first!";
+                    return;
+                }
+                timerInterval = setInterval(tick, 1000);
+                startPauseBtn.textContent = 'Pause';
+                startPauseBtn.className = 'btn pause';
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            totalSeconds = 0;
+            isRunning = false;
+            startPauseBtn.textContent = 'Start';
+            startPauseBtn.className = 'btn start';
+            statusMessage.textContent = "";
+            updateDisplay();
+        }
+
+        function adjustTime(amount) {
+            statusMessage.textContent = "";
+            totalSeconds += amount;
+            if (totalSeconds < 0) totalSeconds = 0;
+            updateDisplay();
+        }
+
+        startPauseBtn.addEventListener('click', toggleTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        
+        document.getElementById('add10').addEventListener('click', () => adjustTime(10));
+        document.getElementById('add30').addEventListener('click', () => adjustTime(30));
+        document.getElementById('add60').addEventListener('click', () => adjustTime(60));
+        document.getElementById('sub10').addEventListener('click', () => adjustTime(-10));
+        document.getElementById('sub30').addEventListener('click', () => adjustTime(-30));
+        document.getElementById('sub60').addEventListener('click', () => adjustTime(-60));
+
+        updateDisplay();
+    </script>
+</body>
+</html>
